@@ -28,6 +28,13 @@
 
 ## 参考文档：
 
-Canvas API相关文档：https://developerdocs.instructure.com/services/canvas/resources/rubrics
+Canvas API相关文档：
+
+https://developerdocs.instructure.com/services/canvas/resources/rubrics 
+
+https://developerdocs.instructure.com/services/canvas/resources/submissions 
+
+https://developerdocs.instructure.com/services/dap/dataset/dataset-namespaces/dataset-canvas?utm_source=chatgpt.com 
+
 
 
