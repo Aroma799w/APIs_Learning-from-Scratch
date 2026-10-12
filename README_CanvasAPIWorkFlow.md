@@ -26,7 +26,7 @@
 
     这部分的脚本代码我让ChatGPT先写了草稿，接着就尝试在 [CanvasAPI_Coding.ipynb](CanvasAPI_Coding.ipynb) 中测试和查看结果，根据自身需求调试代码。
 
-Last update: 2026-10-6 
+Last updated: 2026-10-6 
 
 ## 代码调试与调整反思
 
@@ -95,8 +95,35 @@ Last update: 2026-10-6
         
         显然，其中`include[]`参数定义不匹配。因此，AI一开始给出的全套代码前后的API需求地址没有按照我的要求用统一的前述地址。那明天的任务就是利用这个地址去提取 TA grading的数据并整理好。
 
-Last update: 2026-10-9
+Last updated: 2026-10-9
 
+## TA grading跑完后的数据对比大乌龙
+
+1. TA grading数据获取
+
+基于昨天发现的API需求链接出错，今天更换了新的链接后，数据获取成功了。也是让ChatGPT生成脚本的草稿版本，然后一步步在[CanvasAPI_Coding.ipynb](./CanvasAPI_Coding.ipynb)中调试、查看和核对结果。
+
+2. 误核对Peer review和TA grading的结果
+
+这里其实是我自己的问题，我误以为Canvas课程中web链接的`student id`是唯一改变学生作业评分结果页面的参数。如下图：
+
+![alt text](assets/images/README_CanvasAPIWorkFlow/image.png)
+
+想要就此简单改变学生id后直接查看该生作业评分结果并与代码跑出来的结果核对。但这项作业的peer review是**匿名**的，如果我需要切换到其他学生，必须也同时修改前面的`anonymous_id`，否则Canvas课程页面呈现出来的结果肯定和代码结果对不上。
+
+最初我没意识到这一点😂😂😂就担心这么多cell的代码跑出的数据和原课程对不上，修改量得多大。就和AI吐槽了这个事情：
+
+![alt text](assets/images/README_CanvasAPIWorkFlow/image-1.png)
+
+虽然AI一下子就给出了代码，但我更想现在Postman中查验数据反馈的原始情况。于是开始和AI询问JSON中字段的含义，并反复比对Canvas原课程和Postman中的数据：
+
+![alt text](assets/images/README_CanvasAPIWorkFlow/image-2.png)
+
+在核对过多次后，我终于发现上述`anonymous_id`根据不同学生是变化的！而我需要通过Canvas系统网页的界面UI来切换到不同学生的作业评分页面查看实际数据详情。
+
+于是，这一波核对完，我终于能确认，这些peer review和TA grading的数据和原课程中的数据都能对应上了！终于啊🥳🥳🥳
+
+Last updated: 2026-10-10
 
 
 ## 参考文档：
