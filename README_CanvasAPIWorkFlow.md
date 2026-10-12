@@ -30,102 +30,102 @@ Last updated: 2026-10-6
 
 ## 代码调试与调整反思
 
-1. **`.env` 环境变量的文件要单独创建**
+### 1. `.env` 环境变量的文件要单独创建
 
-    作为一个初级小白，我连 `.env` 这样的环境变量文件需要单独创建来放置 API 请求地址和 Access Token 都不知道。
+作为一个初级小白，我连 `.env` 这样的环境变量文件需要单独创建来放置 API 请求地址和 Access Token 都不知道。
+
+于是一开始，我根据 AI 的代码（但当时没看懂`.env`的配置），直接在 Python 中创建了 2 个字符串变量，专门定义了 API 需求的主要地址和 Access Token。
+
+**反思**：其实这非常危险⚠️ 这样的密钥暴露在代码中，一旦代码被Git到云端且公开访问，那所有人都将拥有该 API 地址的数据访问权限。
+
+### 2. 创建`.gitignore`可以避免同步环境变量文件
     
-    于是一开始，我根据 AI 的代码（但当时没看懂`.env`的配置），直接在 Python 中创建了 2 个字符串变量，专门定义了 API 需求的主要地址和 Access Token。
+ChatGPT提醒我，在Jupiter Notebook文件所在的文件夹中创建 `.gitignore` 文件并写明其中的`.env`可以避免在git代码到云端时，暴露密钥信息。
 
-    **反思**：其实这非常危险⚠️ 这样的密钥暴露在代码中，一旦代码被Git到云端且公开访问，那所有人都将拥有该 API 地址的数据访问权限。
+我自己尝试了一下，果然在 Git Push 之后，`.env` 中的环境变量没有被同步到云端。这一点，必须夸夸AI，因为它能主动补足我没有经验或不懂的领域。
 
-2. **创建`.gitignore`可以避免同步环境变量文件**
-    
-    ChatGPT提醒我，在Jupiter Notebook文件所在的文件夹中创建 `.gitignore` 文件并写明其中的`.env`可以避免在git代码到云端时，暴露密钥信息。
+### 3. 调试代码
 
-    我自己尝试了一下，果然在 Git Push 之后，`.env` 中的环境变量没有被同步到云端。这一点，必须夸夸AI，因为它能主动补足我没有经验或不懂的领域。
+#### 3.1 理解代码功能逻辑 + 多次测试
 
-3. **调试代码**
+ChatGPT 给的大部分代码都是可以直接成功运行的，但我在运行后看到结果会倒推程序实现的功能，然后和AI聊聊自己的理解是否正确。AI会给出及时的反馈，纠正我不正确的理解并给出具体的例子。
 
-    1. <u>理解代码功能逻辑 + 多次测试</u>
+我甚至还从AI那里知道了 *Http 状态码 `200` = 请求成功*。之前虽然浅显地学习了API请求方式，但其实对 Http 的协议不是特别熟悉（曾经也学过计算机网络和TCP/IP，但实在已经忘完了）。
 
-        ChatGPT 给的大部分代码都是可以直接成功运行的，但我在运行后看到结果会倒推程序实现的功能，然后和AI聊聊自己的理解是否正确。AI会给出及时的反馈，纠正我不正确的理解并给出具体的例子。
-    
-        我甚至还从AI那里知道了 *Http 状态码 `200` = 请求成功*。之前虽然浅显地学习了API请求方式，但其实对 Http 的协议不是特别熟悉（曾经也学过计算机网络和TCP/IP，但实在已经忘完了）。
-    
-        有时候程序运行会报错，于是把报错信息直接贴给AI。AI则会直接开始详细分析，并且给出测试问题的方案。我是个懒鬼，不想从头来写代码，通常会让AI告诉我最少工作量的简洁修改方式。比如下图： 
+有时候程序运行会报错，于是把报错信息直接贴给AI。AI则会直接开始详细分析，并且给出测试问题的方案。我是个懒鬼，不想从头来写代码，通常会让AI告诉我最少工作量的简洁修改方式。比如下图： 
 
-        ![alt text](assets/images/CanvasAPI_WorkFlow/99c54521-3617-4c10-8bfd-698bb666c3f0.png)
+![alt text](assets/images/CanvasAPI_WorkFlow/99c54521-3617-4c10-8bfd-698bb666c3f0.png)
 
-    2. <u>看到 DataFrame(df) 的默认语法局限性</u>
+#### 3.2 看到 DataFrame(df) 的默认语法局限性
 
-        此外，当代码测试完成、结果输出后，有时候具有迷惑性。比如，Python通常会直接以 head() 命令输出 df 的前 6 行，但当 df 长度较长时，就无法看到输出数据的全貌。
+此外，当代码测试完成、结果输出后，有时候具有迷惑性。比如，Python通常会直接以 head() 命令输出 df 的前 6 行，但当 df 长度较长时，就无法看到输出数据的全貌。
 
-        我当时看到不完整的数据和大量   `NaN` 的出现，产生了一种前面写的代码有问题、没有把数据整理完成的错觉。后来想要更清晰地看到 df 的全貌，于是也是开始问豆包 df 的前 N 行怎么输出：
+我当时看到不完整的数据和大量   `NaN` 的出现，产生了一种前面写的代码有问题、没有把数据整理完成的错觉。后来想要更清晰地看到 df 的全貌，于是也是开始问豆包 df 的前 N 行怎么输出：
 
-        ![alt text](assets/images/CanvasAPI_WorkFlow/image-1.png) 
+![alt text](assets/images/CanvasAPI_WorkFlow/image-1.png) 
 
-        以及，df 的后 M 行后 N 列怎么输出：
+以及，df 的后 M 行后 N 列怎么输出：
 
-        ![alt text](assets/images/CanvasAPI_WorkFlow/image-2.png) 
+![alt text](assets/images/CanvasAPI_WorkFlow/image-2.png) 
 
-        这些语法的效果非常好，让我看到了已生成 df 的全貌，没有误判前面代码有错误。毕竟，长长的函数如果要排查其中数据获取错误的细节，估计也要费一番功夫。
+这些语法的效果非常好，让我看到了已生成 df 的全貌，没有误判前面代码有错误。毕竟，长长的函数如果要排查其中数据获取错误的细节，估计也要费一番功夫。
 
-    3. <u>AI 可能也会犯糊涂</u>
+#### 3.3 AI可能也会犯糊涂
 
-        前期其实我就和ChatGPT说过了，我是从某一个API 需求地址中直接拉回了所有 Peer review 和 TA grading的数据。也就是说，如果Peer review数据从某个地址已经实现数据整理，那相应地这个地址里也可以取出TA grading的数据来整理。但实际上 TA grading的数据持续没有结果： 
+前期其实我就和ChatGPT说过了，我是从某一个API 需求地址中直接拉回了所有 Peer review 和 TA grading的数据。也就是说，如果Peer review数据从某个地址已经实现数据整理，那相应地这个地址里也可以取出TA grading的数据来整理。但实际上 TA grading的数据持续没有结果： 
 
-        ![alt text](assets/images/CanvasAPI_WorkFlow/image-3.png) 
+![alt text](assets/images/CanvasAPI_WorkFlow/image-3.png) 
 
-        我依据 AI 反馈测试后发现输出内容并不和AI 预测的吻合，开始怀疑这里 TA grading拉取数据的地址不对。和AI 聊时，它又开始胡说：
+我依据 AI 反馈测试后发现输出内容并不和AI 预测的吻合，开始怀疑这里 TA grading拉取数据的地址不对。和AI 聊时，它又开始胡说：
 
-        ![alt text](assets/images/CanvasAPI_WorkFlow/image-4.png) 
+![alt text](assets/images/CanvasAPI_WorkFlow/image-4.png) 
 
-        但我在Jupiter Notebook中的测试结果依然不对。于是我开始找上面 Peer review数据获取成功的API需求地址。发现用于Peer review的API需求对参数的核心定义是这样的：
+但我在Jupiter Notebook中的测试结果依然不对。于是我开始找上面 Peer review数据获取成功的API需求地址。发现用于Peer review的API需求对参数的核心定义是这样的：
 
-        ```Python
-        data = canvas_get(
-        f"/courses/{course_id}/rubrics/{rubric_id}",
-        params={
-            "include[]": "peer_assessments",
-            "style": "full"
-        }
-        ```
+```Python
+data = canvas_get(
+f"/courses/{course_id}/rubrics/{rubric_id}",
+params={
+    "include[]": "peer_assessments",
+    "style": "full"
+}
+```
 
-        但实际上，我在Postman中测试API返回完整的数据时，用的API需求地址是https://hkust-gz.instructure.com/api/v1/courses/3308/rubrics/1077?include[]=assessments&style=full。
-        
-        显然，其中`include[]`参数定义不匹配。因此，AI一开始给出的全套代码前后的API需求地址没有按照我的要求用统一的前述地址。那明天的任务就是利用这个地址去提取 TA grading的数据并整理好。
+但实际上，我在Postman中测试API返回完整的数据时，用的API需求地址是https://hkust-gz.instructure.com/api/v1/courses/3308/rubrics/1077?include[]=assessments&style=full。
+
+显然，其中`include[]`参数定义不匹配。因此，AI一开始给出的全套代码前后的API需求地址没有按照我的要求用统一的前述地址。那明天的任务就是利用这个地址去提取 TA grading的数据并整理好。
 
 Last updated: 2026-10-9
 
 ## TA grading跑完后的数据对比大乌龙
 
-1. **TA grading数据获取**
+### 1. TA grading数据获取
 
-    基于昨天发现的API需求链接出错，今天更换了新的链接后，数据获取成功了。也是让ChatGPT生成脚本的草稿版本，然后一步步在[CanvasAPI_Coding.ipynb](./CanvasAPI_Coding.ipynb)中调试、查看和核对结果。
+基于昨天发现的API需求链接出错，今天更换了新的链接后，数据获取成功了。也是让ChatGPT生成脚本的草稿版本，然后一步步在[CanvasAPI_Coding.ipynb](./CanvasAPI_Coding.ipynb)中调试、查看和核对结果。
 
-2. **误核对Peer review和TA grading的结果**
+### 2. 误核对Peer review和TA grading的结果
 
-    这里其实是我自己的问题，我误以为Canvas课程中web链接的`student id`是唯一改变学生作业评分结果页面的参数。如下图：
+这里其实是我自己的问题，我误以为Canvas课程中web链接的`student id`是唯一改变学生作业评分结果页面的参数。如下图：
 
-    ![alt text](assets/images/README_CanvasAPIWorkFlow/image.png)
+![alt text](assets/images/README_CanvasAPIWorkFlow/image.png)
 
-    想要就此简单改变学生id后直接查看该生作业评分结果并与代码跑出来的结果核对。但这项作业的peer review是**匿名**的，如果我需要切换到其他学生，必须也同时修改前面的`anonymous_id`，否则Canvas课程页面呈现出来的结果肯定和代码结果对不上。
+想要就此简单改变学生id后直接查看该生作业评分结果并与代码跑出来的结果核对。但这项作业的peer review是**匿名**的，如果我需要切换到其他学生，必须也同时修改前面的`anonymous_id`，否则Canvas课程页面呈现出来的结果肯定和代码结果对不上。
 
-    最初我没意识到这一点😂😂😂就担心这么多cell的代码跑出的数据和原课程对不上，修改的工作量得多大。就和AI吐槽了这个事情：
+最初我没意识到这一点😂😂😂就担心这么多cell的代码跑出的数据和原课程对不上，修改的工作量得多大。就和AI吐槽了这个事情：
 
-    ![alt text](assets/images/README_CanvasAPIWorkFlow/image-1.png)
+![alt text](assets/images/README_CanvasAPIWorkFlow/image-1.png)
 
-    虽然AI一下子就给出了代码，但我更想现在Postman中查验数据反馈的原始情况。于是开始和AI询问JSON中字段的含义，并反复比对Canvas原课程和Postman中的数据：
+虽然AI一下子就给出了代码，但我更想现在Postman中查验数据反馈的原始情况。于是开始和AI询问JSON中字段的含义，并反复比对Canvas原课程和Postman中的数据：
 
-    ![alt text](assets/images/README_CanvasAPIWorkFlow/image-2.png)
+![alt text](assets/images/README_CanvasAPIWorkFlow/image-2.png)
 
-3. **核对数据的正确过程很重要**
+### 3. 核对数据的正确过程很重要
 
-    由于上述`anonymous_id`根据不同学生是变化的，因而我需要通过**Canvas系统网页的界面UI**来切换到不同学生的作业评分页面查看实际数据详情。
-    
-    同时，利用已经生成的数据结果中`assessor_id`在Canvas系统中找到参与评价的student reviewer，并对应到前述课程评价页面中核对姓名、评分结果是否能与目前通过API获取到的数据结果能匹配上。
+由于上述`anonymous_id`根据不同学生是变化的，因而我需要通过**Canvas系统网页的界面UI**来切换到不同学生的作业评分页面查看实际数据详情。
 
-    于是，这一波核对完，我终于能确认，这些peer review和TA grading的数据和原课程中的数据都能对应上了，其实通过API代码输出的数据结果是正确的！终于啊🥳🥳🥳
+同时，利用已经生成的数据结果中`assessor_id`在Canvas系统中找到参与评价的student reviewer，并对应到前述课程评价页面中核对姓名、评分结果是否能与目前通过API获取到的数据结果能匹配上。
+
+于是，这一波核对完，我终于能确认，这些peer review和TA grading的数据和原课程中的数据都能对应上了，其实通过API代码输出的数据结果是正确的！终于啊🥳🥳🥳
 
 Last updated: 2026-10-10
 
