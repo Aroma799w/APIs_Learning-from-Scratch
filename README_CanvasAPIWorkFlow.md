@@ -119,13 +119,13 @@ Last updated: 2026-10-9
 
     ![alt text](assets/images/README_CanvasAPIWorkFlow/image-2.png)
 
-3. **前期代码工作出来的数据结果其实正确**
+3. **核对数据的正确过程很重要**
 
-    在核对过多次后，我终于发现上述`anonymous_id`根据不同学生是变化的！而我需要通过**Canvas系统网页的界面UI**来切换到不同学生的作业评分页面查看实际数据详情。
+    由于上述`anonymous_id`根据不同学生是变化的，因而我需要通过**Canvas系统网页的界面UI**来切换到不同学生的作业评分页面查看实际数据详情。
     
     同时，利用已经生成的数据结果中`assessor_id`在Canvas系统中找到参与评价的student reviewer，并对应到前述课程评价页面中核对姓名、评分结果是否能与目前通过API获取到的数据结果能匹配上。
 
-    于是，这一波核对完，我终于能确认，这些peer review和TA grading的数据和原课程中的数据都能对应上了！终于啊🥳🥳🥳
+    于是，这一波核对完，我终于能确认，这些peer review和TA grading的数据和原课程中的数据都能对应上了，其实通过API代码输出的数据结果是正确的！终于啊🥳🥳🥳
 
 Last updated: 2026-10-10
 
