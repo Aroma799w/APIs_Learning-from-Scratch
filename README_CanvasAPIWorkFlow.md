@@ -1,8 +1,12 @@
 # 背景
 
+该Repo是对本人*学习API*、*API数据拉取和整理实战*以及*反思与总结*的实战记录。
+
+虽然之前学过API的基本理论知识和简单上手操作，详见 [APIs_Learning.ipynb](APIs_Learning.ipynb) ，**但正儿八经拉取并整理API数据、应用到实际项目这算是头一回**。
+
 本次API尝试数据获取是在Canvas这一学习管理系统中开展，目的是为推进某项教育研究的数据分析。该教育研究是为了**分析Peer review活动对学生某高阶思维的影响**，因此**需要Peer review活动与学生高阶思维等相关数据**。 
 
-本次Canvas API实战主要参考Canvas官方的API文档并在ChatGPT协助下落地，总共分为几个阶段：
+该Canvas API实战主要参考Canvas官方的API文档并在ChatGPT协助下落地，总共分为几个阶段：
 
 ## 初始工作流（已反思）
 
@@ -16,9 +20,9 @@
 
 2. 在上述结果准确后，查看数据类型和结果是否符合该教育研究数据的需求。 
 
-    在多次返回结果中均未发现"assessment_type": "peer_review"的数据结果，而是默认为"assessment_type": "grading"的大量数据。本次教育研究需要的数据包括Peer review和grading的数据，因此多次尝试不同的API需求命令。 
+    在多次返回结果中均未发现`"assessment_type": "peer_review"`的数据结果，而是默认为`"assessment_type": "grading"`的大量数据。本次教育研究需要的数据包括Peer review和grading的数据，因此多次尝试不同的API需求命令。 
 
-    **反思**：快速搜索返回数据中**是否包含关键字段**，判断是否符合研究数据的需求。这里的关键字段即"assessment_type": "peer_review"。
+    **反思**：快速搜索返回数据中**是否包含关键字段**，判断是否符合研究数据的需求。这里的关键字段即`"assessment_type": "peer_review"`。
 
 3. 多次尝试后，终于返回的数据既包含 Peer review 又包含 grading 的数据。但需要利用 Python 脚本将这些数据整理成最终的长数据类型，可能长下面这样： 
 
@@ -128,6 +132,124 @@ Last updated: 2026-10-9
 于是，这一波核对完，我终于能确认，这些peer review和TA grading的数据和原课程中的数据都能对应上了，其实通过API代码输出的数据结果是正确的！终于啊🥳🥳🥳
 
 Last updated: 2026-10-10
+
+## TA grading中 Comment for this attempt 获取
+
+上述将TA grading的数据拉取成功、整理到位后，还涉及拉取TA留在学生作业批改页面的Comment文本。TA没有像学生reviewer那样利用rubrics去留存comment，而是直接利用Canvas Speedgrader页面中的`Comment for this attempt`来产生总体的质性评估。
+
+为了获取`Comment for this attempt`的确切数据，我开始和ChatGPT聊怎样定位到合适的API地址。但这个过程出现了一些小挫折——并没有我想象中那么简单就能找到合适的地址。
+
+### 1. 获取数据API地址
+
+我一开始自己查询 [Submission Comments的Canvas API 文档](https://developerdocs.instructure.com/services/canvas/resources/submission_comments)，利用关键词 *comment* 来快速检索相关的API地址。（后续找错地址说明这个思路不对）其中和comment有关的API需求命令是这样的：
+
+```
+/api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/comments/:id
+```
+
+但是尝试即便不加最后的id，也很难在Postman中看到comments的内容，于是我意识到请求的地址不对。于是开始问AI，AI开始分析我的API需求。
+
+![alt text](assets/images/README_CanvasAPIWorkFlow/image-3.png)
+
+它给了一些提示，让我先明确真正的API地址去获得学生作业提交和评论信息。并告诉我，submission comment的API文档其实更针对某次作业提交的评论（submission comment），而不是TA在Canvas的Speedgrader页面中，对学生某次作业提交留下的Comment for this attempt。
+
+于是，我开始使用以下命令尝试拉取某位学生的相关数据：
+
+```
+GET /api/v1/courses/COURSE_ID/assignments/ASSIGNMENT_ID/submissions/STUDENT_ID?include[]=submission_comments&include[]=submission_history
+```
+
+但这次尝试，Postman中返回的数据中也搜不到submission_comment这个字段，也就是说API的请求地址仍然不对。
+
+在和AI说明情况后，它开始减少API请求地址末尾的参数让我尝试下列地址：
+
+```
+GET https://你的Canvas域名/api/v1/courses/COURSE_ID/assignments/ASSIGNMENT_ID/submissions/STUDENT_ID
+```
+
+虽然这个地址能抓回一些数据，但这些数据中依然没有submission_comment这个关键字段。于是，AI再次修改了API地址后续的参数：
+
+```
+https://hkust-gz.instructure.com/api/v1/courses/3308/assignments/23999/submissions/6470?include[]=submission_comments
+```
+
+这次，就有了submission_comment的关键字段！
+
+### 2. API地址寻找的反思
+
+我很疑惑，为什么自己找到的地址不对，而AI却能在几次尝试后找到合适的地址。那以后又该如何高效找准类似的地址呢？结合AI的回应，我有以下反思：
+
+#### 2.1 厘清需求
+
+我要找的数据其实是**submission资源中相关联的comment数据**，而不是comment资源的直接接口。前者是**在作业提交记录中读取评论**，后者是**对某个评论执行具体操作**。
+
+Submission comments是把评论当作独立资源，其API地址中参数**要求明确comment的具体ID**，方便我对某个评论执行具体操作。其地址是：
+
+```
+/api/v1/courses/:course_id/assignments/:assignment_id/submissions/:user_id/comments/:id
+```
+
+正如AI所说，这样的链接表达的层级是：
+
+![alt text](assets/images/README_CanvasAPIWorkFlow/image-4.png)
+
+而这意味着这个地址假设我这个用户（数据获取者）**是已经知道某条评论的id**。而这并不符合我**想要读取某些提交作业相关联评论**（我是**未知评论id**的状态）的需求。因此，这个API的地址其实不匹配我的需求，用它的地址我拿不到自己想要的数据。
+
+但如果把Comment for this attempt当作提交记录的关联数据来读取，就意味着定位到某个作业并明确要获取数据的的具体参数即可，即：
+
+```
+GET /api/v1/courses/3308/assignments/23999/submissions/6470?include[]=submission_comments
+```
+
+可以说，上述2种数据对应的需求和资源具有以下关系：
+
+![alt text](assets/images/README_CanvasAPIWorkFlow/image-5.png)
+
+#### 2.2 以后找API地址的有效策略
+
+**第 1 步：明确目标数据是什么**
+
+先问自己：我要获取的是一条 Submission、一个 Comment、一个 Rubric Assessment，还是某个学生的 User 信息？
+
+例如，你要的是“学生某次作业提交上的普通评论”，所以主资源是 Submission，评论是它关联的数据。
+
+**第 2 步：先找 GET，而不是只搜资源名称**
+
+在资源页面中优先找 Get a single...、List...、Show 等读取接口。
+
+你可以直接在官方文档中使用浏览器的 Ctrl + F（Mac 为 Command + F）搜索 GET、include[]、submission_comments。
+
+**第 3 步：检查参数与返回字段**
+
+找到 GET 地址后，继续检查： 
+
+- Request Parameters：是否支持 include[]？
+- Allowed values：是否有你需要的关联对象？
+- API response 或对象定义：返回字段叫什么？
+这一步能避免把“接口可以操作评论”误认为“接口可以直接读取评论列表”。
+
+**第 4 步：用一条真实记录验证**
+
+用一位已知有评论的学生进行 Postman 测试，对照 SpeedGrader 中的内容，检查返回字段、作者、时间和评论正文是否吻合。
+
+只有实际返回的数据与目标一致，才算真正找到正确的接口。
+
+**其他技巧**
+
+1. 先找对应的资源，再找关联字段
+
+先根据需求找到对应资源的返回数据，再阅读API文档根据请求参数include[]加载/细化关联数据。例如：
+
+![alt text](assets/images/README_CanvasAPIWorkFlow/image-6.png)
+
+2. 找到资源后，要看是否有对应的http方法
+
+同一个资源对应不同的操作，比如GET、POST、PUT、DELETE等。当API链接中有/comments/:id 时，**不要立即认定它支持 GET**。要继续看该路径下面**实际列出了哪些 HTTP 方法**，方法如果对不上则也说明这个API链接不能实现需求。
+
+3. 不需要读完所有API文档，先确定需求最相关的正确资源对象
+
+Last updated: 2026-10-20
+
 
 
 ## 参考文档：
