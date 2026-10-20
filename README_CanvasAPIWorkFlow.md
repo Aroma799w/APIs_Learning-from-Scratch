@@ -151,7 +151,7 @@ Last updated: 2026-10-10
 
 ![alt text](assets/images/README_CanvasAPIWorkFlow/image-3.png)
 
-它给了一些提示，让我先明确真正的API地址去获得学生作业提交和评论信息。并告诉我，submission comment的API文档其实更针对某次作业提交的评论（submission comment），而不是TA在Canvas的Speedgrader页面中，对学生某次作业提交留下的Comment for this attempt。
+它给了一些提示，让我先明确真正的API地址去获得学生作业提交和评论信息。并告诉我，submission comment的API文档其实更针对某次作业提交的评论（submission comment），而不是TA在Canvas的Speedgrader页面中，对学生某次作业提交留下的`Comment for this attempt`。
 
 于是，我开始使用以下命令尝试拉取某位学生的相关数据：
 
@@ -159,7 +159,7 @@ Last updated: 2026-10-10
 GET /api/v1/courses/COURSE_ID/assignments/ASSIGNMENT_ID/submissions/STUDENT_ID?include[]=submission_comments&include[]=submission_history
 ```
 
-但这次尝试，Postman中返回的数据中也搜不到submission_comment这个字段，也就是说API的请求地址仍然不对。
+但这次尝试，Postman中返回的数据中也搜不到`submission_comments`这个字段，也就是说API的请求地址仍然不对。
 
 在和AI说明情况后，它开始减少API请求地址末尾的参数让我尝试下列地址：
 
@@ -167,13 +167,13 @@ GET /api/v1/courses/COURSE_ID/assignments/ASSIGNMENT_ID/submissions/STUDENT_ID?i
 GET https://你的Canvas域名/api/v1/courses/COURSE_ID/assignments/ASSIGNMENT_ID/submissions/STUDENT_ID
 ```
 
-虽然这个地址能抓回一些数据，但这些数据中依然没有submission_comment这个关键字段。于是，AI再次修改了API地址后续的参数：
+虽然这个地址能抓回一些数据，但这些数据中依然没有`submission_comments`这个关键字段。于是，AI再次修改了API地址后续的参数：
 
 ```
 https://hkust-gz.instructure.com/api/v1/courses/3308/assignments/23999/submissions/6470?include[]=submission_comments
 ```
 
-这次，就有了submission_comment的关键字段！
+这次，就有了`submission_comments`的关键字段！
 
 ### 2. API地址寻找的反思
 
@@ -195,7 +195,7 @@ Submission comments是把评论当作独立资源，其API地址中参数**要�
 
 而这意味着这个地址假设我这个用户（数据获取者）**是已经知道某条评论的id**。而这并不符合我**想要读取某些提交作业相关联评论**（我是**未知评论id**的状态）的需求。因此，这个API的地址其实不匹配我的需求，用它的地址我拿不到自己想要的数据。
 
-但如果把Comment for this attempt当作提交记录的关联数据来读取，就意味着定位到某个作业并明确要获取数据的的具体参数即可，即：
+但如果把`Comment for this attempt`当作提交记录的关联数据来读取，就意味着定位到某个作业并明确要获取数据的的具体参数即可，即：
 
 ```
 GET /api/v1/courses/3308/assignments/23999/submissions/6470?include[]=submission_comments
@@ -217,7 +217,7 @@ GET /api/v1/courses/3308/assignments/23999/submissions/6470?include[]=submission
 
 在资源页面中优先找 Get a single...、List...、Show 等读取接口。
 
-你可以直接在官方文档中使用浏览器的 Ctrl + F（Mac 为 Command + F）搜索 GET、include[]、submission_comments。
+你可以直接在官方文档中使用浏览器的 Ctrl + F（Mac 为 Command + F）搜索 GET、include[]、`submission_comments`。
 
 **第 3 步：检查参数与返回字段**
 
@@ -249,8 +249,6 @@ GET /api/v1/courses/3308/assignments/23999/submissions/6470?include[]=submission
 3. 不需要读完所有API文档，先确定需求最相关的正确资源对象
 
 Last updated: 2026-10-20
-
-
 
 ## 参考文档：
 
