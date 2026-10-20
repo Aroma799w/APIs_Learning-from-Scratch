@@ -234,19 +234,19 @@ GET /api/v1/courses/3308/assignments/23999/submissions/6470?include[]=submission
 
 只有实际返回的数据与目标一致，才算真正找到正确的接口。
 
-**其他技巧**
+#### 2.3 其他技巧
 
-1. 先找对应的资源，再找关联字段
+- 先找对应的资源，再找关联字段
 
 先根据需求找到对应资源的返回数据，再阅读API文档根据请求参数include[]加载/细化关联数据。例如：
 
 ![alt text](assets/images/README_CanvasAPIWorkFlow/image-6.png)
 
-2. 找到资源后，要看是否有对应的http方法
+- 找到资源后，要看是否有对应的http方法
 
 同一个资源对应不同的操作，比如GET、POST、PUT、DELETE等。当API链接中有/comments/:id 时，**不要立即认定它支持 GET**。要继续看该路径下面**实际列出了哪些 HTTP 方法**，方法如果对不上则也说明这个API链接不能实现需求。
 
-3. 不需要读完所有API文档，先确定需求最相关的正确资源对象
+- 不需要读完所有API文档，先确定需求最相关的正确资源对象
 
 Last updated: 2026-10-20
 
